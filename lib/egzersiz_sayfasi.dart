@@ -384,7 +384,7 @@ child: Column(
               ),
               SizedBox(width: 10),
               Text(
-                "7h 30m", // Dinamik uyku süresi verisi (örnek)
+                "8h 30m", // Dinamik uyku süresi verisi (örnek)
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ],
