@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:gluco_reminder/acil_durum_saydasi.dart';
+import 'package:gluco_reminder/acil_durum_sayfasi.dart';
 import 'package:gluco_reminder/anasayfa.dart';
 import 'package:gluco_reminder/beslenme_sayfasi.dart';
 import 'package:gluco_reminder/egzersiz_sayfasi.dart';

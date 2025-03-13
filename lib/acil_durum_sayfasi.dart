@@ -11,6 +11,7 @@ class AcilDurumSayfasi extends StatefulWidget {
   const AcilDurumSayfasi({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AcilDurumSayfasiState createState() => _AcilDurumSayfasiState();
 }
 
