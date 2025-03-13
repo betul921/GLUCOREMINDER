@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -16,8 +17,6 @@ class AcilDurumSayfasi extends StatefulWidget {
 }
 
 class _AcilDurumSayfasiState extends State<AcilDurumSayfasi> {
-  List<Map<String, String>> kisiler = [];
-
   void kisiEkle() {
     String ad = '';
     String soyad = '';
@@ -58,15 +57,16 @@ class _AcilDurumSayfasiState extends State<AcilDurumSayfasi> {
             ),
             ElevatedButton(
               child: Text("Ekle"),
-              onPressed: () {
-                setState(() {
-                  kisiler.add({
+              onPressed: () async {
+                if (ad.isNotEmpty && soyad.isNotEmpty && yakinlik.isNotEmpty && telefon.isNotEmpty) {
+                  await FirebaseFirestore.instance.collection('acil_kisiler').add({
                     "ad": ad,
                     "soyad": soyad,
                     "yakinlik": yakinlik,
                     "telefon": telefon,
                   });
-                });
+                }
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               },
             ),
@@ -76,37 +76,46 @@ class _AcilDurumSayfasiState extends State<AcilDurumSayfasi> {
     );
   }
 
-  void kisiSil(int index) {
-    setState(() {
-      kisiler.removeAt(index);
-    });
+  void kisiSil(String kisiId) async {
+    await FirebaseFirestore.instance.collection('acil_kisiler').doc(kisiId).delete();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Acil Durum Sayfası")),
-      body: kisiler.isEmpty
-          ? Center(child: Text("Kayıtlı acil durum kişisi yok."))
-          : ListView.builder(
-              itemCount: kisiler.length,
-              itemBuilder: (context, index) {
-                var kisi = kisiler[index];
-                return Card(
-                  color: Colors.teal[100],
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    title: Text("${kisi['ad']} ${kisi['soyad']}"),
-                    subtitle: Text("${kisi['yakinlik']} - ${kisi['telefon']}"),
-                    leading: Icon(Icons.person),
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => kisiSil(index),
-                    ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('acil_kisiler').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text("Kayıtlı acil durum kişisi yok."));
+          }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) {
+              var kisi = snapshot.data!.docs[index];
+              return Card(
+                color: Colors.teal[100],
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  title: Text("${kisi['ad']} ${kisi['soyad']}"),
+                  subtitle: Text("${kisi['yakinlik']} - ${kisi['telefon']}"),
+                  leading: Icon(Icons.person),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => kisiSil(kisi.id),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: kisiEkle,
         child: Icon(Icons.add),
