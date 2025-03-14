@@ -1,10 +1,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:gluco_reminder/bottom_nav_bar.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();  // Firebase'i başlatıyoruz
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
