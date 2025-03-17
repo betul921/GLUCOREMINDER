@@ -1,0 +1,2 @@
+C:/Users/beyza/GLUCOREMINDER/android/app/.cxx/Debug/69b6p2t5/x86/CMakeFiles/edit_cache.dir
+C:/Users/beyza/GLUCOREMINDER/android/app/.cxx/Debug/69b6p2t5/x86/CMakeFiles/rebuild_cache.dir

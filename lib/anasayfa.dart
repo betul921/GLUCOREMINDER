@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 
-class Anasayfa extends StatefulWidget {
-  const Anasayfa({super.key});
-
-  @override
-  State<Anasayfa> createState() => _AnasayfaState();
+void main() {
+  runApp(MyApp());
 }
 
-class _AnasayfaState extends State<Anasayfa> {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(child:Text("anasayfaa",style:TextStyle(fontSize:30,color:Colors.black54),),);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false, // Gereksiz debug etiketi kaldırıldı
+      home: Anasayfa(),
+    );
+  }
+}
+
+class Anasayfa extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const CircleAvatar(
+            backgroundColor: Color.fromARGB(255, 79, 210, 210),
+            child: Icon(Icons.person, color: Colors.white),
+          ),
+          onPressed: () {
+            // Butona basılınca olacak işlemler
+          },
+        ),
+        title: Text('Kullanıcı', style: TextStyle(fontSize: 16)),
+      ),
+    );
   }
 }
