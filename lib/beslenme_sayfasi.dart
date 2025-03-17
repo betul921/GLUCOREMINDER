@@ -42,8 +42,8 @@ class BeslenmeSayfasi extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 300,
-                  height: 120,
+                  width: 150,
+                  height: 60,
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   child: ElevatedButton(
                     onPressed: () {
@@ -58,8 +58,8 @@ class BeslenmeSayfasi extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  width: 300,
-                  height: 120,
+                  width: 150,
+                  height: 60,
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   child: ElevatedButton(
                     onPressed: () {
@@ -80,8 +80,8 @@ class BeslenmeSayfasi extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 300,
-                  height: 120,
+                  width: 150,
+                  height: 60,
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   child: ElevatedButton(
                     onPressed: () {
@@ -96,8 +96,8 @@ class BeslenmeSayfasi extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  width: 300,
-                  height: 120,
+                  width: 150,
+                  height: 60,
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   child: ElevatedButton(
                     onPressed: () {
