@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gluco_reminder/profil.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,7 +26,10 @@ class Anasayfa extends StatelessWidget {
             child: Icon(Icons.person, color: Colors.white),
           ),
           onPressed: () {
-            // Butona basılınca olacak işlemler
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Profil()),
+            );
           },
         ),
         title: Text('Kullanıcı', style: TextStyle(fontSize: 16)),
