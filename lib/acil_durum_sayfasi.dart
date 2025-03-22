@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:gluco_reminder/profil.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -58,8 +59,13 @@ class _AcilDurumSayfasiState extends State<AcilDurumSayfasi> {
             ElevatedButton(
               child: Text("Ekle"),
               onPressed: () async {
-                if (ad.isNotEmpty && soyad.isNotEmpty && yakinlik.isNotEmpty && telefon.isNotEmpty) {
-                  await FirebaseFirestore.instance.collection('acil_kisiler').add({
+                if (ad.isNotEmpty &&
+                    soyad.isNotEmpty &&
+                    yakinlik.isNotEmpty &&
+                    telefon.isNotEmpty) {
+                  await FirebaseFirestore.instance
+                      .collection('acil_kisiler')
+                      .add({
                     "ad": ad,
                     "soyad": soyad,
                     "yakinlik": yakinlik,
@@ -77,15 +83,43 @@ class _AcilDurumSayfasiState extends State<AcilDurumSayfasi> {
   }
 
   void kisiSil(String kisiId) async {
-    await FirebaseFirestore.instance.collection('acil_kisiler').doc(kisiId).delete();
+    await FirebaseFirestore.instance
+        .collection('acil_kisiler')
+        .doc(kisiId)
+        .delete();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Acil Durum Sayfası")),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const CircleAvatar(
+            backgroundColor: Color.fromARGB(255, 79, 210, 210),
+            child: Icon(Icons.person, color: Colors.white),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Profil()), //profil sayfasına geçiş
+            );
+          },
+        ),
+        title: Text('Kullanıcı', style: TextStyle(fontSize: 16)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Text(
+              'Acil Durum Sayfası',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ],
+      ),
       body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('acil_kisiler').snapshots(),
+        stream:
+            FirebaseFirestore.instance.collection('acil_kisiler').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

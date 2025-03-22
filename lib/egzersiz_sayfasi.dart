@@ -3,7 +3,7 @@ import 'package:gluco_reminder/bisiklet.dart';
 import 'package:gluco_reminder/kosu.dart';
 import 'package:gluco_reminder/yurume.dart';
 import 'package:gluco_reminder/yuzme.dart';
-
+import 'package:gluco_reminder/profil.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -14,7 +14,6 @@ void main() {
 
 class EgzersizSayfasi extends StatefulWidget {
   EgzersizSayfasi({super.key});
-  
 
   final List<Map<String, dynamic>> egzersizler = [
     {'icon': Icons.pool, 'name': 'Yüzme'},
@@ -27,26 +26,27 @@ class EgzersizSayfasi extends StatefulWidget {
   State<EgzersizSayfasi> createState() => _EgzersizSayfasi();
 }
 
-class _EgzersizSayfasi extends State<EgzersizSayfasi>with SingleTickerProviderStateMixin {
+class _EgzersizSayfasi extends State<EgzersizSayfasi>
+    with SingleTickerProviderStateMixin {
   late AnimationController _heartAnimationController;
-int heartRate = 75; // Varsayılan kalp atış hızı (BPM)
+  int heartRate = 75; // Varsayılan kalp atış hızı (BPM)
 
-@override
-void initState() {
-  super.initState();
-  _heartAnimationController = AnimationController(
-    vsync: this,
-    duration: Duration(milliseconds: 800),
-    lowerBound: 0.0,
-    upperBound: 1.0,
-  )..repeat(reverse: true); // Kalbin sürekli atmasını sağlıyoruz
-}
+  @override
+  void initState() {
+    super.initState();
+    _heartAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+      lowerBound: 0.0,
+      upperBound: 1.0,
+    )..repeat(reverse: true); // Kalbin sürekli atmasını sağlıyoruz
+  }
 
-@override
-void dispose() {
-  _heartAnimationController.dispose();
-  super.dispose();
-}
+  @override
+  void dispose() {
+    _heartAnimationController.dispose();
+    super.dispose();
+  }
 
   List<Map<String, dynamic>> egzersizVerileri = [];
 
@@ -61,11 +61,13 @@ void dispose() {
   }
 
   double _getTotalCalories() {
-    return egzersizVerileri.fold(0.0, (sum, egzersiz) => sum + (egzersiz['calories'] as num).toDouble());
+    return egzersizVerileri.fold(
+        0.0, (sum, egzersiz) => sum + (egzersiz['calories'] as num).toDouble());
   }
 
   int _getTotalTime() {
-    return egzersizVerileri.fold(0, (sum, egzersiz) => sum + (egzersiz['time'] as num).toInt());
+    return egzersizVerileri.fold(
+        0, (sum, egzersiz) => sum + (egzersiz['time'] as num).toInt());
   }
 
   void _egzersizHesapla(String egzersizAdi) {
@@ -136,8 +138,36 @@ void dispose() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Egzersiz Sayfası')),
-      body: SingleChildScrollView( // İçeriğin taşmasını engellemek için kaydırılabilir alan
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const CircleAvatar(
+            backgroundColor: Color.fromARGB(255, 79, 210, 210),
+            child: Icon(Icons.person, color: Colors.white),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Profil()), //profil sayfasına geçiş
+            );
+          },
+        ),
+        title: Text(
+          'Kullanıcı',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Text(
+              'Egzersiz Sayfası',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        // İçeriğin taşmasını engellemek için kaydırılabilir alan
         child: Column(
           children: [
             // EGZERSİZLER Başlığı
@@ -165,7 +195,8 @@ void dispose() {
                     InkWell(
                       onTap: () {
                         setState(() {
-                          _egzersizHesapla(egzersiz['name']); // Kalori ve süre hesapla
+                          _egzersizHesapla(
+                              egzersiz['name']); // Kalori ve süre hesapla
                         });
                         _egzersizSec(egzersiz['name']); // Sayfaya yönlendir
                       },
@@ -173,7 +204,8 @@ void dispose() {
                       child: CircleAvatar(
                         radius: 25,
                         backgroundColor: Colors.grey[300],
-                        child: Icon(egzersiz['icon'], size: 24, color: Colors.black),
+                        child: Icon(egzersiz['icon'],
+                            size: 24, color: Colors.black),
                       ),
                     ),
                     SizedBox(height: 10),
@@ -206,7 +238,8 @@ void dispose() {
                       child: Center(
                         child: Text(
                           "Toplam Süre: ${_getTotalTime()} dakika",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -221,7 +254,8 @@ void dispose() {
                       child: Center(
                         child: Text(
                           "Toplam Kalori: ${_getTotalCalories()} kcal",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -230,188 +264,197 @@ void dispose() {
               ],
             ),
             SizedBox(height: 30),
- Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    // Su Tüketimi Container'ı
-    Container(
-  width: 175, // Dar bir genişlik
-  height: 250, // Uzun bir yükseklik
-  padding: EdgeInsets.all(8), // Kenarlardan boşluk
-  decoration: BoxDecoration(
-    color: Colors.blue[200], // Su için mavi renk
-    borderRadius: BorderRadius.circular(15),
-  ),
-child: Column(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Text(
-      "Su Tüketimi",
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    ),
-    Expanded(
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(bottom: 60), //  Su animasyonunu biraz yukarı kaydır
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 800),
-              width: 100,
-              height: 175 * (waterLevel / maxWater),
-              decoration: BoxDecoration(
-                color: Color.fromRGBO(0, 0, 255, 0.6),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(12),
-                  top: Radius.circular(waterLevel > 0 ? 12 : 0),
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  "${(waterLevel * 1000).toStringAsFixed(0)} ml",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Su Tüketimi Container'ı
+                Container(
+                  width: 175, // Dar bir genişlik
+                  height: 250, // Uzun bir yükseklik
+                  padding: EdgeInsets.all(8), // Kenarlardan boşluk
+                  decoration: BoxDecoration(
+                    color: Colors.blue[200], // Su için mavi renk
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Su Tüketimi",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom:
+                                      60), //  Su animasyonunu biraz yukarı kaydır
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 800),
+                                width: 100,
+                                height: 175 * (waterLevel / maxWater),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(0, 0, 255, 0.6),
+                                  borderRadius: BorderRadius.vertical(
+                                    bottom: Radius.circular(12),
+                                    top: Radius.circular(
+                                        waterLevel > 0 ? 12 : 0),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "${(waterLevel * 1000).toStringAsFixed(0)} ml",
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 1,
+                              child: ElevatedButton(
+                                onPressed: _increaseWater,
+                                child: const Text("+250ml"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+
+                SizedBox(width: 30), // Aralık
+                Container(
+                  width: 175, // Dar bir genişlik
+                  height: 250, // Uzun bir yükseklik
+                  padding: EdgeInsets.all(8), // Kenarlardan boşluk
+                  decoration: BoxDecoration(
+                    color: Colors.red[200], // Kalp atışı için kırmızı renk
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Kalp Atışı Başlığı
+                      Text(
+                        "Kalp Atışı",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+
+                      // Atan Kalp Animasyonu
+                      Expanded(
+                        child: AnimatedBuilder(
+                          animation: _heartAnimationController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: 1.5 +
+                                  0.3 *
+                                      _heartAnimationController
+                                          .value, // Büyüyüp küçülen kalp
+                              child: Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                                size: 60,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                      // Kullanıcının Kalp Atışı Değeri
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          "$heartRate bpm", // Dinamik kalp atışı verisi
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-          Positioned(
-            bottom: 1,
-            child: ElevatedButton(
-              onPressed: _increaseWater,
-              child: const Text("+250ml"),
+            SizedBox(height: 25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Uyku Verisi Container'ı
+                Container(
+                  width: 350, // Genişliği arttırarak yatay bir kutu yapıyoruz
+                  height: 170, // Yüksekliği biraz daha kısa tutabiliriz
+                  padding: EdgeInsets.all(8), // Kenarlardan boşluk
+                  decoration: BoxDecoration(
+                    color: Colors.purple[200], // Uyku için mor renk
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Uyku Başlığı
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Uyku Süresi",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 50),
+                      // Gece Sembolü ve Uyku Süresi
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.nightlight_round, // Gece sembolü
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "8h 30m", // Dinamik uyku süresi verisi (örnek)
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+
+                      // Uyku Grafiksel Sembolü
+                      Icon(
+                        Icons.bedtime, // Uyku sembolü
+                        color: Colors.white,
+                        size: 60,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 30), // Aralık
+              ],
             ),
-          ),
-        ],
-      ),
-    ),
-  ],
-),
 
-),
-
-    SizedBox(width: 30), // Aralık
-  Container(
-  width: 175, // Dar bir genişlik
-  height: 250, // Uzun bir yükseklik
-  padding: EdgeInsets.all(8), // Kenarlardan boşluk
-  decoration: BoxDecoration(
-    color: Colors.red[200], // Kalp atışı için kırmızı renk
-    borderRadius: BorderRadius.circular(15),
-  ),
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      // Kalp Atışı Başlığı
-      Text(
-        "Kalp Atışı",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-
-      // Atan Kalp Animasyonu
-      Expanded(
-        child: AnimatedBuilder(
-          animation: _heartAnimationController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1.5 + 0.3 * _heartAnimationController.value, // Büyüyüp küçülen kalp
-              child: Icon(
-                Icons.favorite,
-                color: Colors.red,
-                size: 60,
-              ),
-            );
-          },
-        ),
-      ),
-
-      // Kullanıcının Kalp Atışı Değeri
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          "$heartRate bpm", // Dinamik kalp atışı verisi
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-    ],
-  ),
-),
+            SizedBox(width: 30), // Aralık
           ],
         ),
-        SizedBox(height: 25),
-   Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    // Uyku Verisi Container'ı
-    Container(
-      width: 350, // Genişliği arttırarak yatay bir kutu yapıyoruz
-      height: 170, // Yüksekliği biraz daha kısa tutabiliriz
-      padding: EdgeInsets.all(8), // Kenarlardan boşluk
-      decoration: BoxDecoration(
-        color: Colors.purple[200], // Uyku için mor renk
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Uyku Başlığı
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Uyku Süresi",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-            ],
-          ),
-          SizedBox(height: 50),
-          // Gece Sembolü ve Uyku Süresi
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.nightlight_round, // Gece sembolü
-                color: Colors.white,
-                size: 40,
-              ),
-              SizedBox(width: 10),
-              Text(
-                "8h 30m", // Dinamik uyku süresi verisi (örnek)
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-            ],
-          ),
-          
-          // Uyku Grafiksel Sembolü
-          Icon(
-            Icons.bedtime, // Uyku sembolü
-            color: Colors.white,
-            size: 60,
-          ),
-        ],
-      ),
-    ),
-    SizedBox(width: 30), // Aralık
-  ],
-),
-
-    SizedBox(width: 30), // Aralık
-  ],
-),
-
-       
-     
-  
-
-    
       ),
     );
   }

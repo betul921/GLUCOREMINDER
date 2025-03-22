@@ -16,6 +16,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Randevu {
+  final String doktorAdi;
+  final String hastaneAdi;
+  final String tarih;
+  final String saat;
+  final String bilgiler;
+
+  Randevu({
+    required this.doktorAdi,
+    required this.hastaneAdi,
+    required this.tarih,
+    required this.saat,
+    required this.bilgiler,
+  });
+}
+
 class RandevuSayfasi extends StatefulWidget {
   @override
   _RandevuSayfasiState createState() => _RandevuSayfasiState();
@@ -29,19 +45,19 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
   ]; // 3 farklı renk
   List<Color> randevuRenkleri =
       []; // Eklenen randevuların renklerini saklayan liste
+  List<Randevu> randevular = []; // Eklenen randevuları saklayan liste
   int renkIndex = 0; // Sırayla renk seçmek için
 
-  void randevuEkle() {
+  void randevuEkle(Randevu yeniRandevu) {
     setState(() {
-      randevuRenkleri.add(renkler[renkIndex]); // Renk ekleniyor
-      renkIndex =
-          (renkIndex + 1) % renkler.length; // Döngüsel olarak renk değiştir
+      randevular.add(yeniRandevu);
+      renkIndex = (renkIndex + 1) % renkler.length;
     });
   }
 
   void randevuSil(int index) {
     setState(() {
-      randevuRenkleri.removeAt(index); // Belirtilen index'teki randevuyu kaldır
+      randevular.removeAt(index); // Belirtilen index'teki randevuyu kaldır
     });
   }
 
@@ -80,26 +96,51 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: randevuRenkleri.length,
+                itemCount: randevular.length,
                 itemBuilder: (context, index) {
                   return Container(
                     margin: EdgeInsets.all(8),
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: randevuRenkleri[index],
+                      color: renkler[index % renkler.length],
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Randevu ${index + 1}",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Doktor: ${randevular[index].doktorAdi}",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                            Text(
+                              "Hastane: ${randevular[index].hastaneAdi}",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            Text(
+                              "Tarih: ${randevular[index].tarih}",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            Text(
+                              "Saat: ${randevular[index].saat}",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            Text(
+                              "Bilgiler: ${randevular[index].bilgiler}",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ],
                         ),
                         IconButton(
                           icon: Icon(Icons.delete, color: Colors.white),
-                          onPressed: () =>
-                              randevuSil(index), // İlgili randevuyu sil
+                          onPressed: () => randevuSil(index),
                         ),
                       ],
                     ),
@@ -111,13 +152,15 @@ class _RandevuSayfasiState extends State<RandevuSayfasi> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    RandevuEkleme()), //randevu ekleme sayfasına geçiş
+            MaterialPageRoute(builder: (context) => RandevuEkleme()),
           );
+
+          if (result != null) {
+            randevuEkle(result);
+          }
         },
         backgroundColor: Color.fromARGB(255, 79, 210, 210),
         child: Icon(Icons.add, color: Colors.white),

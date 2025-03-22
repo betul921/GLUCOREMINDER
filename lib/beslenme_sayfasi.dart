@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gluco_reminder/profil.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,6 +19,32 @@ class BeslenmeSayfasi extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const CircleAvatar(
+            backgroundColor: Color.fromARGB(255, 79, 210, 210),
+            child: Icon(Icons.person, color: Colors.white),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Profil()), //profil sayfasına geçiş
+            );
+          },
+        ),
+        title: Text(
+          'Kullanıcı',
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Text(
+              'Beslenme Sayfası',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -26,7 +53,8 @@ class BeslenmeSayfasi extends StatelessWidget {
           children: [
             // Başlık "Beslenmelerim" yazısını biraz daha aşağıya almak için bir padding ekledim
             Padding(
-              padding: const EdgeInsets.only(top: 30.0), // Başlık için üstten boşluk ekliyoruz
+              padding: const EdgeInsets.only(
+                  top: 30.0), // Başlık için üstten boşluk ekliyoruz
               child: Center(
                 child: Text(
                   'Beslenmelerim',
