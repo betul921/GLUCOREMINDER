@@ -29,7 +29,8 @@ class _RandevuEklemeState extends State<RandevuEkleme> {
   TextEditingController _hastaneAdiController = TextEditingController();
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
-  TextEditingController _bilgilerController = TextEditingController();
+  TextEditingController _notlarController = TextEditingController();
+  TextEditingController _randevuTuruController = TextEditingController();
 
   // 📌 Tarih seçme fonksiyonu
   Future<void> _pickDate() async {
@@ -66,9 +67,10 @@ class _RandevuEklemeState extends State<RandevuEkleme> {
     Randevu yeniRandevu = Randevu(
       doktorAdi: _doktorAdiController.text,
       hastaneAdi: _hastaneAdiController.text,
+      randevuTuru: _randevuTuruController.text,
       tarih: _dateController.text,
       saat: _timeController.text,
-      bilgiler: _bilgilerController.text,
+      notlar: _notlarController.text,
     );
 
     Navigator.pop(context, yeniRandevu); // Randevu bilgilerini geri döndür
@@ -110,53 +112,6 @@ class _RandevuEklemeState extends State<RandevuEkleme> {
           ),
           SizedBox(height: 20),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center, // Butonları ortalamak için
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size(170, 100),
-                  ),
-                  child: Image.asset(
-                    'assests/images/doktor_erkek.png', // Burada 'assests' yerine 'assets' olmalı
-                    width: 170,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-
-                SizedBox(width: 20), // Butonlar arasında 20 birim boşluk ekler
-
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size(170, 100),
-                  ),
-                  child: Image.asset(
-                    'assests/images/doktor_kadin.png', // Burada da 'assests' yerine 'assets' olmalı
-                    width: 170,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               controller: _hastaneAdiController,
@@ -170,55 +125,27 @@ class _RandevuEklemeState extends State<RandevuEkleme> {
                   borderSide: BorderSide(color: Colors.green, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                hintText: "Hastane/ Poliklinik Adı:",
+                hintText: "Hastane Adı:",
               ),
             ),
           ),
           SizedBox(height: 20),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center, // Butonları ortalamak için
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size(170, 100),
-                  ),
-                  child: Image.asset(
-                    'assests/images/hastane.png', // Burada 'assests' yerine 'assets' olmalı
-                    width: 170,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: _randevuTuruController,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color.fromARGB(255, 79, 210, 210), width: 2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-
-                SizedBox(width: 20), // Butonlar arasında 20 birim boşluk ekler
-
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0),
-                    ),
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size(170, 100),
-                  ),
-                  child: Image.asset(
-                    'assests/images/saglik_ocagi.png', // Burada da 'assests' yerine 'assets' olmalı
-                    width: 170,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green, width: 2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ],
+                hintText: "Randevu Türü:",
+              ),
             ),
           ),
           SizedBox(height: 20),
@@ -269,6 +196,10 @@ class _RandevuEklemeState extends State<RandevuEkleme> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
+              controller: _notlarController,
+              minLines: 1,
+              maxLines: null, // sınırsız büyüme
+              keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -279,10 +210,10 @@ class _RandevuEklemeState extends State<RandevuEkleme> {
                   borderSide: BorderSide(color: Colors.green, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                hintText: "Randevu Bilgileri:",
+                hintText: "Notlar:",
               ),
             ),
-          ),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
