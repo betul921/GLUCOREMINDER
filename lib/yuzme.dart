@@ -21,7 +21,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
   Timer? timer;
   double calories = 0.0;
   int kilo = 50;
-  int MET = 4; // Yüzme için MET
+  int metDegeri = 4; // Yüzme için MET
   bool _timerRunning = false;
   DateTime? _lastSavedTime;
   int _pausedSeconds = 0;
@@ -134,7 +134,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
 
   void calculateCalories() {
     double minutes = seconds / 60.0;
-    calories = (MET * kilo * 3.5 / 200) * minutes;
+    calories = (metDegeri * kilo * 3.5 / 200) * minutes;
   }
 
   String get formattedTime {

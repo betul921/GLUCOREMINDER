@@ -4,6 +4,7 @@ import 'package:gluco_reminder/kosu.dart';
 import 'package:gluco_reminder/yurume.dart';
 import 'package:gluco_reminder/yuzme.dart';
 import 'package:gluco_reminder/profil.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -29,18 +30,37 @@ class EgzersizSayfasi extends StatefulWidget {
 class _EgzersizSayfasi extends State<EgzersizSayfasi>
     with SingleTickerProviderStateMixin {
   late AnimationController _heartAnimationController;
-  int heartRate = 75; // Varsayılan kalp atış hızı (BPM)
+  int? heartRate ; // Varsayılan kalp atış hızı (BPM)
+  String? _latestBpm;
 
-  @override
-  void initState() {
-    super.initState();
-    _heartAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 800),
-      lowerBound: 0.0,
-      upperBound: 1.0,
-    )..repeat(reverse: true); // Kalbin sürekli atmasını sağlıyoruz
+@override
+void initState() {
+  super.initState();
+  _getLatestBpm(); // Sayfa ilk açıldığında bpm kutusunu doldur
+  _heartAnimationController = AnimationController(
+    vsync: this,
+    duration: Duration(milliseconds: 800),
+    lowerBound: 0.0,
+    upperBound: 1.0,
+  )..repeat(reverse: true);
+}
+
+
+
+void _getLatestBpm() async {
+  final snapshot = await FirebaseFirestore.instance
+      .collection('kalp_verileri')
+      .orderBy('kayitZamani', descending: true)
+      .limit(1)
+      .get();
+
+  if (snapshot.docs.isNotEmpty) {
+    setState(() {
+      _latestBpm = snapshot.docs.first['kalpAtisi'].toString();
+    });
   }
+}
+
 
   @override
   void dispose() {
@@ -62,12 +82,12 @@ class _EgzersizSayfasi extends State<EgzersizSayfasi>
 
   double _getTotalCalories() {
     return egzersizVerileri.fold(
-        0.0, (sum, egzersiz) => sum + (egzersiz['calories'] as num).toDouble());
+        0.0, (toplam, egzersiz) => toplam + (egzersiz['calories'] as num).toDouble());
   }
 
   int _getTotalTime() {
     return egzersizVerileri.fold(
-        0, (sum, egzersiz) => sum + (egzersiz['time'] as num).toInt());
+        0, (toplam, egzersiz) => toplam + (egzersiz['time'] as num).toInt());
   }
 
   void _egzersizHesapla(String egzersizAdi) {
@@ -75,30 +95,30 @@ class _EgzersizSayfasi extends State<EgzersizSayfasi>
     double calories = 0.0; // Kalori
     int kilo = 50;
     // ignore: non_constant_identifier_names
-    int MET = 0; // Başlangıç değeri atanmalı
+    int metDegeri = 0; // Başlangıç değeri atanmalı
 
     switch (egzersizAdi) {
       case 'Koşu':
-        MET = 3;
+        metDegeri = 3;
         time = 30;
         break;
       case 'Yüzme':
-        MET = 4;
+        metDegeri = 4;
         time = 30;
         break;
       case 'Yürüyüş':
-        MET = 3;
+        metDegeri = 3;
         time = 30;
         break;
       case 'Bisiklet':
-        MET = 5;
+        metDegeri = 5;
         time = 30;
         break;
       default:
         return; // Geçersiz seçim
     }
     // Kalori hesaplaması
-    calories = (MET * kilo * 3.5 / 200) * time;
+    calories = (metDegeri * kilo * 3.5 / 200) * time;
 
     setState(() {
       egzersizVerileri.add({
@@ -134,6 +154,7 @@ class _EgzersizSayfasi extends State<EgzersizSayfasi>
       MaterialPageRoute(builder: (context) => yeniSayfa),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -330,62 +351,197 @@ class _EgzersizSayfasi extends State<EgzersizSayfasi>
                   ),
                 ),
 
-                SizedBox(width: 30), // Aralık
-                Container(
-                  width: 175, // Dar bir genişlik
-                  height: 250, // Uzun bir yükseklik
-                  padding: EdgeInsets.all(8), // Kenarlardan boşluk
-                  decoration: BoxDecoration(
-                    color: Colors.red[200], // Kalp atışı için kırmızı renk
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Kalp Atışı Başlığı
-                      Text(
-                        "Kalp Atışı",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
+              SizedBox(width: 30), // Aralık
+Container(
+  width: 175, // Dar bir genişlik
+  height: 250, // Uzun bir yükseklik
+  padding: EdgeInsets.all(8), // Kenarlardan boşluk
+  decoration: BoxDecoration(
+    color: Colors.red[200], // Kalp atışı için kırmızı renk
+    borderRadius: BorderRadius.circular(15),
+  ),
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      // Kalp Atışı Başlığı ve Ayar Butonu
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Kalp Atışı",
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          IconButton(
+            icon: Icon(Icons.more_horiz), // Üç nokta ikonu gibi küçük bir buton
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  // Veri giriş alanlarını burada tanımlayacağız
+                  TextEditingController heartRateController = TextEditingController();
+                  TextEditingController systolicController = TextEditingController();
+                  TextEditingController diastolicController = TextEditingController();
+                  TextEditingController measurementTimeController = TextEditingController();
 
-                      // Atan Kalp Animasyonu
-                      Expanded(
-                        child: AnimatedBuilder(
-                          animation: _heartAnimationController,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: 1.5 +
-                                  0.3 *
-                                      _heartAnimationController
-                                          .value, // Büyüyüp küçülen kalp
-                              child: Icon(
-                                Icons.favorite,
-                                color: Colors.red,
-                                size: 60,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                  return AlertDialog(
+                    title: Text("Kalp Verileri"),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            controller: heartRateController,
+                            decoration: InputDecoration(labelText: "Kalp Atışı (bpm)"),
+                            keyboardType: TextInputType.number,
+                          ),
+                          TextField(
+                            controller: systolicController,
+                            decoration: InputDecoration(labelText: "Büyük Tansiyon (mmHg)"),
+                            keyboardType: TextInputType.number,
+                          ),
+                          TextField(
+                            controller: diastolicController,
+                            decoration: InputDecoration(labelText: "Küçük Tansiyon (mmHg)"),
+                            keyboardType: TextInputType.number,
+                          ),
+                         TextField(
+  controller: measurementTimeController,
+  decoration: InputDecoration(labelText: "Son Ölçüm Zamanı"),
+  readOnly: true, // Kullanıcı manuel yazamasın, sadece picker'dan seçsin
+  onTap: () async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
 
-                      // Kullanıcının Kalp Atışı Değeri
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          "$heartRate bpm", // Dinamik kalp atışı verisi
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+    if (pickedDate != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        DateTime fullDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        // Tarihi istediğin formata çeviriyoruz
+        String formattedDateTime = "${fullDateTime.day.toString().padLeft(2, '0')}/"
+            "${fullDateTime.month.toString().padLeft(2, '0')}/"
+            "${fullDateTime.year} "
+            "${pickedTime.format(context)}";
+
+        measurementTimeController.text = formattedDateTime;
+      }
+    }
+  },
+),
+
+                        ],
                       ),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text("İptal"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+      TextButton(
+  child: Text("Kaydet"),
+  onPressed: () async {
+    int? kalpAtisiVerisi = int.tryParse(heartRateController.text);
+    int? buyukTansiyon = int.tryParse(systolicController.text);
+    int? kucukTansiyon = int.tryParse(diastolicController.text);
+    String olcumZamani = measurementTimeController.text;
+
+    if (kalpAtisiVerisi != null &&
+        buyukTansiyon != null &&
+        kucukTansiyon != null &&
+        olcumZamani.isNotEmpty) {
+      
+      // Veriyi kaydet
+      await FirebaseFirestore.instance.collection('kalp_verileri').add({
+        'kalpAtisi': kalpAtisiVerisi,
+        'buyukTansiyon': buyukTansiyon,
+        'kucukTansiyon': kucukTansiyon,
+        'olcumZamani': olcumZamani,
+        'kayitZamani': FieldValue.serverTimestamp(),
+      });
+
+      _getLatestBpm();
+
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lütfen tüm alanları geçerli şekilde doldurun')),
+      );
+    }
+  },
+),
+
+
+
                     ],
-                  ),
-                ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+
+      // Atan Kalp Animasyonu
+      Expanded(
+        child: AnimatedBuilder(
+          animation: _heartAnimationController,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 1.5 +
+                  0.3 *
+                      _heartAnimationController
+                          .value, // Büyüyüp küçülen kalp
+              child: Icon(
+                Icons.favorite,
+                color: Colors.red,
+                size: 60,
+              ),
+            );
+          },
+        ),
+      ),
+
+      // Kullanıcının Kalp Atışı Değeri
+   Container(
+  height: 30,
+  width: 80, // <<< SABİT yükseklik ekliyoruz
+  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(10),
+  ),
+  alignment: Alignment.center, // <<< Yazıyı ortalamak için
+  child: Text(
+       _latestBpm != null ? '$_latestBpm bpm' : '',
+    style: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
+
+    ],
+  ),
+),
+
               ],
             ),
             SizedBox(height: 25),
