@@ -21,7 +21,7 @@ class _KosuSayfasiState extends State<KosuSayfasi>
   Timer? timer;
   double calories = 0.0;
   int kilo = 50;
-  int metDegeri = 3; // Koşu için MET
+  int metDegeri = 9; // Koşu için MET
   bool _timerRunning = false;
   DateTime? _lastSavedTime;
   int _pausedSeconds = 0;
@@ -40,55 +40,47 @@ class _KosuSayfasiState extends State<KosuSayfasi>
   }
 
   Future<void> _loadLastSession() async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('kosu_verileri')
-          .orderBy('zaman_damgasi', descending: true)
-          .limit(1)
-          .get();
+    final query = await FirebaseFirestore.instance
+        .collection('kosu_verileri')
+        .orderBy('zaman_damgasi', descending: true)
+        .limit(1)
+        .get();
 
-      if (query.docs.isNotEmpty) {
-        final data = query.docs.first.data();
-        setState(() {
-          _pausedSeconds = int.tryParse(data['zaman'].toString()) ?? 0;
-          seconds = _pausedSeconds;
-          calories = double.tryParse(data['kalori'].toString()) ?? 0.0;
-          _lastSavedTime = data['zaman_damgasi'] is Timestamp
-              ? (data['zaman_damgasi'] as Timestamp).toDate()
-              : null;
-
-          if ((data['zamanlayici_durum'] ?? false) == true &&
-              _lastSavedTime != null) {
-            final now = DateTime.now();
-            final diff = now.difference(_lastSavedTime!).inSeconds;
-            _pausedSeconds += diff;
-            seconds = _pausedSeconds;
-            startTimer();  // Sayacın devam etmesini sağla
-          }
-        });
-      }
-    } catch (e) {
-      print("❌ Hata oluştu: $e");
-    } finally {
+    if (query.docs.isNotEmpty) {
+      final data = query.docs.first.data();
       setState(() {
-        _isLoading = false;
+        _pausedSeconds = int.tryParse(data['zaman'].toString()) ?? 0;
+        seconds = _pausedSeconds;
+        calories = double.tryParse(data['kalori'].toString()) ?? 0.0;
+        _lastSavedTime = data['zaman_damgasi'] is Timestamp
+            ? (data['zaman_damgasi'] as Timestamp).toDate()
+            : null;
+
+        if ((data['zamanlayici_durum'] ?? false) == true &&
+            _lastSavedTime != null) {
+          final now = DateTime.now();
+          final diff = now.difference(_lastSavedTime!).inSeconds;
+          _pausedSeconds += diff;
+          seconds = _pausedSeconds;
+          startTimer();
+        }
       });
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _kaydetKosuVerisi({bool timerRunning = false}) async {
-    try {
-      await FirebaseFirestore.instance.collection('kosu_verileri').add({
-        'zaman': seconds,
-        'kalori': calories,
-        'zamanlayici_durum': timerRunning,
-        'zaman_damgasi': FieldValue.serverTimestamp(),
-      });
-      _lastSavedTime = DateTime.now();
-      print("✅ Veri kaydedildi: $seconds saniye, $calories kalori");
-    } catch (e) {
-      print("❌ Veri kaydedilemedi: $e");
-    }
+    await FirebaseFirestore.instance.collection('kosu_verileri').add({
+      'zaman': seconds,
+      'kalori': calories,
+      'zamanlayici_durum': timerRunning,
+      'zaman_damgasi': FieldValue.serverTimestamp(),
+    });
+
+    _lastSavedTime = DateTime.now();
   }
 
   void startTimer() {
@@ -168,7 +160,7 @@ class _KosuSayfasiState extends State<KosuSayfasi>
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.orange,
                     child: Icon(Icons.person, color: Colors.white),
                   ),
                   SizedBox(width: 8),
@@ -198,7 +190,7 @@ class _KosuSayfasiState extends State<KosuSayfasi>
                           child: Icon(
                             Icons.directions_run,
                             size: 60,
-                            color: Colors.green,
+                            color: Colors.orangeAccent,
                           ),
                         ),
                       ),
@@ -293,7 +285,7 @@ class RingPainter extends CustomPainter {
       ..strokeWidth = strokeWidth;
 
     final foregroundPaint = Paint()
-      ..color = Colors.green
+      ..color = Colors.greenAccent
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -310,3 +302,4 @@ class RingPainter extends CustomPainter {
     return oldDelegate.progress != progress;
   }
 }
+

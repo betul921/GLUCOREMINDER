@@ -21,7 +21,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
   Timer? timer;
   double calories = 0.0;
   int kilo = 50;
-  int metDegeri = 4; // Yüzme için MET
+  int metDegeri = 6; // Yüzme için MET değeri farklı olabilir
   bool _timerRunning = false;
   DateTime? _lastSavedTime;
   int _pausedSeconds = 0;
@@ -40,55 +40,47 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
   }
 
   Future<void> _loadLastSession() async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('yuzme_verileri')
-          .orderBy('zaman_damgasi', descending: true)
-          .limit(1)
-          .get();
+    final query = await FirebaseFirestore.instance
+        .collection('yuzme_verileri')
+        .orderBy('zaman_damgasi', descending: true)
+        .limit(1)
+        .get();
 
-      if (query.docs.isNotEmpty) {
-        final data = query.docs.first.data();
-        setState(() {
-          _pausedSeconds = int.tryParse(data['zaman'].toString()) ?? 0;
-          seconds = _pausedSeconds;
-          calories = double.tryParse(data['kalori'].toString()) ?? 0.0;
-          _lastSavedTime = data['zaman_damgasi'] is Timestamp
-              ? (data['zaman_damgasi'] as Timestamp).toDate()
-              : null;
-
-          if ((data['zamanlayici_durum'] ?? false) == true &&
-              _lastSavedTime != null) {
-            final now = DateTime.now();
-            final diff = now.difference(_lastSavedTime!).inSeconds;
-            _pausedSeconds += diff;
-            seconds = _pausedSeconds;
-            startTimer();  // Sayacın devam etmesini sağla
-          }
-        });
-      }
-    } catch (e) {
-      print("❌ Hata oluştu: $e");
-    } finally {
+    if (query.docs.isNotEmpty) {
+      final data = query.docs.first.data();
       setState(() {
-        _isLoading = false;
+        _pausedSeconds = int.tryParse(data['zaman'].toString()) ?? 0;
+        seconds = _pausedSeconds;
+        calories = double.tryParse(data['kalori'].toString()) ?? 0.0;
+        _lastSavedTime = data['zaman_damgasi'] is Timestamp
+            ? (data['zaman_damgasi'] as Timestamp).toDate()
+            : null;
+
+        if ((data['zamanlayici_durum'] ?? false) == true &&
+            _lastSavedTime != null) {
+          final now = DateTime.now();
+          final diff = now.difference(_lastSavedTime!).inSeconds;
+          _pausedSeconds += diff;
+          seconds = _pausedSeconds;
+          startTimer();
+        }
       });
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _kaydetYuzmeVerisi({bool timerRunning = false}) async {
-    try {
-      await FirebaseFirestore.instance.collection('yuzme_verileri').add({
-        'zaman': seconds,
-        'kalori': calories,
-        'zamanlayici_durum': timerRunning,
-        'zaman_damgasi': FieldValue.serverTimestamp(),
-      });
-      _lastSavedTime = DateTime.now();
-      print("✅ Veri kaydedildi: $seconds saniye, $calories kalori");
-    } catch (e) {
-      print("❌ Veri kaydedilemedi: $e");
-    }
+    await FirebaseFirestore.instance.collection('yuzme_verileri').add({
+      'zaman': seconds,
+      'kalori': calories,
+      'zamanlayici_durum': timerRunning,
+      'zaman_damgasi': FieldValue.serverTimestamp(),
+    });
+
+    _lastSavedTime = DateTime.now();
   }
 
   void startTimer() {
@@ -96,7 +88,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
 
     setState(() {
       _timerRunning = true;
-      seconds = _pausedSeconds; // Kaldığı yerden devam et
+      seconds = _pausedSeconds;
     });
 
     timer?.cancel();
@@ -116,7 +108,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
     timer?.cancel();
     setState(() {
       _timerRunning = false;
-      _pausedSeconds = seconds;  // Zamanı durdurduğunda kaydet
+      _pausedSeconds = seconds;
     });
 
     _kaydetYuzmeVerisi(timerRunning: false);
@@ -214,7 +206,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
-                        color: Colors.pink[100],
+                        color: Colors.blue[100],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       height: 160,
@@ -251,7 +243,7 @@ class _YuzmeSayfasiState extends State<YuzmeSayfasi>
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.only(left: 8),
                       decoration: BoxDecoration(
-                        color: Colors.pink[100],
+                        color: Colors.blue[100],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       height: 160,

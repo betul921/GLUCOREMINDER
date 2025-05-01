@@ -21,7 +21,7 @@ class _BisikletSayfasiState extends State<BisikletSayfasi>
   Timer? timer;
   double calories = 0.0;
   int kilo = 50;
-  int metDegeri = 5; // Bisiklet için örnek MET
+  int metDegeri = 7; // Bisiklet için MET
   bool _timerRunning = false;
   DateTime? _lastSavedTime;
   int _pausedSeconds = 0;
@@ -40,55 +40,47 @@ class _BisikletSayfasiState extends State<BisikletSayfasi>
   }
 
   Future<void> _loadLastSession() async {
-    try {
-      final query = await FirebaseFirestore.instance
-          .collection('bisiklet_verileri')
-          .orderBy('zaman_damgasi', descending: true)
-          .limit(1)
-          .get();
+    final query = await FirebaseFirestore.instance
+        .collection('bisiklet_verileri')
+        .orderBy('zaman_damgasi', descending: true)
+        .limit(1)
+        .get();
 
-      if (query.docs.isNotEmpty) {
-        final data = query.docs.first.data();
-        setState(() {
-          _pausedSeconds = int.tryParse(data['zaman'].toString()) ?? 0;
-          seconds = _pausedSeconds;
-          calories = double.tryParse(data['kalori'].toString()) ?? 0.0;
-          _lastSavedTime = data['zaman_damgasi'] is Timestamp
-              ? (data['zaman_damgasi'] as Timestamp).toDate()
-              : null;
-
-          if ((data['zamanlayici_durum'] ?? false) == true &&
-              _lastSavedTime != null) {
-            final now = DateTime.now();
-            final diff = now.difference(_lastSavedTime!).inSeconds;
-            _pausedSeconds += diff;
-            seconds = _pausedSeconds;
-            startTimer();
-          }
-        });
-      }
-    } catch (e) {
-      print("❌ Hata oluştu: $e");
-    } finally {
+    if (query.docs.isNotEmpty) {
+      final data = query.docs.first.data();
       setState(() {
-        _isLoading = false;
+        _pausedSeconds = int.tryParse(data['zaman'].toString()) ?? 0;
+        seconds = _pausedSeconds;
+        calories = double.tryParse(data['kalori'].toString()) ?? 0.0;
+        _lastSavedTime = data['zaman_damgasi'] is Timestamp
+            ? (data['zaman_damgasi'] as Timestamp).toDate()
+            : null;
+
+        if ((data['zamanlayici_durum'] ?? false) == true &&
+            _lastSavedTime != null) {
+          final now = DateTime.now();
+          final diff = now.difference(_lastSavedTime!).inSeconds;
+          _pausedSeconds += diff;
+          seconds = _pausedSeconds;
+          startTimer();
+        }
       });
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _kaydetBisikletVerisi({bool timerRunning = false}) async {
-    try {
-      await FirebaseFirestore.instance.collection('bisiklet_verileri').add({
-        'zaman': seconds,
-        'kalori': calories,
-        'zamanlayici_durum': timerRunning,
-        'zaman_damgasi': FieldValue.serverTimestamp(),
-      });
-      _lastSavedTime = DateTime.now();
-      print("✅ Veri kaydedildi: $seconds saniye, $calories kalori");
-    } catch (e) {
-      print("❌ Veri kaydedilemedi: $e");
-    }
+    await FirebaseFirestore.instance.collection('bisiklet_verileri').add({
+      'zaman': seconds,
+      'kalori': calories,
+      'zamanlayici_durum': timerRunning,
+      'zaman_damgasi': FieldValue.serverTimestamp(),
+    });
+
+    _lastSavedTime = DateTime.now();
   }
 
   void startTimer() {
@@ -168,7 +160,7 @@ class _BisikletSayfasiState extends State<BisikletSayfasi>
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.orange,
                     child: Icon(Icons.person, color: Colors.white),
                   ),
                   SizedBox(width: 8),
@@ -196,9 +188,9 @@ class _BisikletSayfasiState extends State<BisikletSayfasi>
                         height: 170,
                         child: Center(
                           child: Icon(
-                            Icons.pedal_bike,
+                            Icons.directions_bike,
                             size: 60,
-                            color: Colors.blue,
+                            color: Colors.orangeAccent,
                           ),
                         ),
                       ),
@@ -214,7 +206,7 @@ class _BisikletSayfasiState extends State<BisikletSayfasi>
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
-                        color: Colors.lightBlue[100],
+                        color: Colors.orange[100],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       height: 160,
@@ -251,7 +243,7 @@ class _BisikletSayfasiState extends State<BisikletSayfasi>
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.only(left: 8),
                       decoration: BoxDecoration(
-                        color: Colors.lightBlue[100],
+                        color: Colors.orange[100],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       height: 160,
@@ -288,12 +280,12 @@ class RingPainter extends CustomPainter {
     final radius = size.width / 2 - strokeWidth / 2;
 
     final backgroundPaint = Paint()
-      ..color = Colors.blue.shade100
+      ..color = Colors.green.shade100
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
     final foregroundPaint = Paint()
-      ..color = Colors.blue
+      ..color = Colors.greenAccent
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -310,3 +302,5 @@ class RingPainter extends CustomPainter {
     return oldDelegate.progress != progress;
   }
 }
+
+
