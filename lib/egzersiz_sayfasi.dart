@@ -169,7 +169,7 @@ void _getLatestBpm() async {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => Profil()), //profil sayfasına geçiş
+                  builder: (context) => ProfilSayfasi()), //profil sayfasına geçiş
             );
           },
         ),
